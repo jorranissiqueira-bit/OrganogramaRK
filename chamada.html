@@ -285,14 +285,24 @@
   .toolbar button.primary { background: var(--ml-yellow); }
   .toolbar button.primary:hover { background: var(--ml-yellow-dark); }
 
+  .nav-back {
+    position: fixed; top: 14px; left: 14px; z-index: 999;
+    background: var(--ml-dark); color: var(--ml-yellow);
+    font-weight: 800; font-size: 13px; text-decoration: none;
+    padding: 10px 16px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,.2);
+  }
+  .nav-back:hover { background: #444; }
+
   @media print {
-    .toolbar { display: none; }
+    .toolbar, .nav-back { display: none; }
     body { background: #fff; padding: 10px; }
     .linha input, .chamada-panel input { border: 1px solid #999; }
   }
 </style>
 </head>
 <body>
+
+<a href="index.html" class="nav-back">← Organograma</a>
 
 <h1>
   <svg class="icon-box" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
