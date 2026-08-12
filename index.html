@@ -1180,6 +1180,88 @@
 
   renderAll();
 </script>
-
+<!-- AUTO-SAVE COMPARTILHADO -->
+<script>
+(function () {
+  var API_KEY  = '$2a$10$HNSV56m7SaeCgX8NXjmJneupvlJqI8I7rLgsEjLLfZc8QFK2e8R12';
+  var BIN_ID   = '';
+  var STORAGE  = 'rk-bin-id';
+  var binId = BIN_ID || localStorage.getItem(STORAGE);
+  var saveTimer = null, lastJson = null, resolveFn = null, block = false, loading = false;
+  var _click = HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click = function () {
+    if (block && this.download && this.href && this.href.indexOf('blob:') === 0) {
+      var href = this.href;
+      fetch(href).then(function(r){return r.json();}).then(function(d){if(resolveFn){resolveFn(d);resolveFn=null;}}).catch(function(){if(resolveFn){resolveFn(null);resolveFn=null;}});
+      return;
+    }
+    return _click.call(this);
+  };
+  function capturarEstado() {
+    return new Promise(function(resolve) {
+      resolveFn = resolve; block = true;
+      var btn = Array.from(document.querySelectorAll('button')).find(function(b){return b.textContent.trim().includes('Salvar');});
+      if (btn) { btn.click(); } else { resolve(null); }
+      block = false;
+      setTimeout(function(){if(resolveFn){resolve(null);resolveFn=null;}}, 2000);
+    });
+  }
+  async function salvar(dados) {
+    var json = JSON.stringify(dados);
+    if (json === lastJson) return;
+    lastJson = json;
+    try {
+      if (!binId) {
+        var r = await fetch('https://api.jsonbin.io/v3/b', {method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':'organograma-rk','X-Bin-Private':'false'},body:json});
+        var j = await r.json();
+        binId = j.metadata && j.metadata.id;
+        if (binId) { localStorage.setItem(STORAGE, binId); status('✅ Bin criado! ID: '+binId,8000); console.warn('=== JSONBIN ID ===',binId,'=== Envie ao responsavel! ==='); mostrarBanner(binId); }
+      } else {
+        await fetch('https://api.jsonbin.io/v3/b/'+binId, {method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:json});
+        status('✅ Salvo automaticamente');
+      }
+    } catch(e) { status('⚠️ Erro ao salvar online'); }
+  }
+  async function carregar() {
+    if (!binId) return null;
+    try {
+      var r = await fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{headers:{'X-Master-Key':API_KEY}});
+      return r.ok ? (await r.json()).record || null : null;
+    } catch(e) { return null; }
+  }
+  function aplicar(dados) {
+    var inp = document.querySelector('input[type="file"]');
+    if (!inp) return;
+    var blob = new Blob([JSON.stringify(dados)],{type:'application/json'});
+    var file = new File([blob],'organograma.json',{type:'application/json'});
+    try { var dt=new DataTransfer(); dt.items.add(file); inp.files=dt.files; inp.dispatchEvent(new Event('change',{bubbles:true})); } catch(e){}
+  }
+  function status(msg, dur) {
+    var el = document.getElementById('rk-status');
+    if (!el) { el=document.createElement('div'); el.id='rk-status'; el.style.cssText='position:fixed;bottom:16px;right:16px;background:#2d2d2d;color:#FFE600;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:99999;transition:opacity .5s;pointer-events:none'; document.body.appendChild(el); }
+    el.textContent=msg; el.style.opacity='1'; clearTimeout(el._t); el._t=setTimeout(function(){el.style.opacity='0';}, dur||2500);
+  }
+  function mostrarBanner(id) {
+    var b = document.createElement('div');
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FFE600;color:#2d2d2d;padding:16px 24px;text-align:center;font-size:15px;font-weight:700;z-index:99999;box-shadow:0 2px 10px rgba(0,0,0,.2)';
+    b.innerHTML = '🎉 Copie este código e envie ao responsável: <span style="background:#2d2d2d;color:#FFE600;padding:4px 12px;border-radius:6px;font-family:monospace">'+id+'</span><button onclick="this.parentElement.remove()" style="margin-left:16px;background:none;border:2px solid #2d2d2d;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700">✕</button>';
+    document.body.prepend(b);
+  }
+  function agendarSalvamento() {
+    if (loading) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async function(){ var e=await capturarEstado(); if(e) await salvar(e); }, 2000);
+  }
+  document.addEventListener('DOMContentLoaded', async function() {
+    document.querySelectorAll('.escala-names,.fixados-box,.levels,.escala-grid').forEach(function(el){
+      new MutationObserver(agendarSalvamento).observe(el,{childList:true,subtree:true});
+    });
+    loading = true; status('⏳ Carregando dados...', 5000);
+    var dados = await carregar();
+    if (dados) { setTimeout(function(){ aplicar(dados); setTimeout(function(){ loading=false; status('✅ Dados carregados!'); },600); },400); }
+    else { loading=false; status(binId ? '📋 Organograma vazio' : '🆕 Primeira configuração...'); }
+  });
+})();
+</script>
 </body>
 </html>
