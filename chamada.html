@@ -35,7 +35,6 @@
   }
   .icon-box { width: 24px; height: 24px; flex-shrink: 0; }
   .hint { font-size: 13px; color: var(--ml-gray); margin-bottom: 22px; text-align: center; max-width: 720px; }
-
   /* Painel do total geral da chamada */
   .chamada-panel {
     background: var(--ml-dark);
@@ -72,7 +71,6 @@
     color: var(--ml-dark);
   }
   .chamada-panel input:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,230,0,0.5); }
-
   .chamada-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
   .chamada-grid-3 { grid-template-columns: repeat(3, 1fr); }
   @media (max-width: 640px) { .chamada-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -85,7 +83,6 @@
   .cham-item input:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,230,0,0.5); }
   .cham-soma { margin-top: 16px; font-size: 15px; font-weight: 700; color: #fff; text-align: right; }
   .cham-soma b { font-size: 26px; color: var(--ml-yellow); margin-left: 8px; }
-
   /* Reconciliação */
   .recon {
     max-width: 760px;
@@ -122,19 +119,20 @@
   .recon .card.status .v { font-size: 20px; padding-top: 8px; }
   .badge-ok { color: var(--ok); }
   .badge-warn { color: var(--warn); }
-
   /* Grupos */
   .grupos {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    max-width: 1300px;
     width: 100%;
+    max-width: 100%;
+    align-items: stretch;
   }
-  @media (max-width: 1200px) { .grupos { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 820px) { .grupos { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .grupos { grid-template-columns: 1fr; } }
-
+  @media (max-width: 1000px) { .grupos { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px)  { .grupos { grid-template-columns: 1fr; } }
+  /* wrappers que empilham cards na mesma célula do grid */
+  .ship-sin-stack,
+  .pack-ps-stack  { display: flex; flex-direction: column; gap: 16px; }
   .grupo {
     background: #fff;
     border: 2px solid var(--ml-dark);
@@ -176,7 +174,6 @@
   }
   .grupo-header input[type=time]:focus { outline: none; box-shadow: 0 0 0 3px rgba(45,45,45,0.25); }
   .grupo-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-
   .linha {
     display: flex;
     align-items: center;
@@ -188,7 +185,7 @@
     border-radius: 8px;
   }
   .linha .nome { font-size: 13px; font-weight: 600; }
-  .linha input {
+  .linha input[type=number] {
     width: 66px;
     padding: 7px 8px;
     border: 1px solid #ccc;
@@ -197,8 +194,7 @@
     font-weight: 700;
     text-align: center;
   }
-  .linha input:focus { outline: none; border-color: var(--ml-yellow-dark); box-shadow: 0 0 0 3px rgba(255,230,0,0.4); }
-
+  .linha input[type=number]:focus { outline: none; border-color: var(--ml-yellow-dark); box-shadow: 0 0 0 3px rgba(255,230,0,0.4); }
   .subtot {
     margin-top: 4px;
     display: flex;
@@ -263,7 +259,6 @@
     font-size: 16px; font-weight: 700; text-align: center; font-family: inherit;
   }
   .ps-box input:focus { outline: none; border-color: var(--ml-yellow-dark); box-shadow: 0 0 0 3px rgba(255,230,0,0.4); }
-
   .toolbar {
     display: flex;
     justify-content: center;
@@ -284,7 +279,6 @@
   .toolbar button:hover { background: var(--ml-yellow); }
   .toolbar button.primary { background: var(--ml-yellow); }
   .toolbar button.primary:hover { background: var(--ml-yellow-dark); }
-
   .nav-back {
     position: fixed; top: 14px; left: 14px; z-index: 999;
     background: var(--ml-dark); color: var(--ml-yellow);
@@ -293,17 +287,148 @@
   }
   .nav-back:hover { background: #444; }
 
+  /* ── Mov. Fora Plano ── */
+  /* linha no mesmo formato dos outros grupos, mas com tipo selecionável */
+  .mov-linha { align-items: flex-start !important; }
+  .mov-left  { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .mov-nome  { font-size: 13px; font-weight: 700; cursor: default; display: block; }
+  .mov-tipo-wrap { display: flex; align-items: center; }
+  .mov-paren { font-size: 12px; color: #888; font-style: italic; line-height: 1; user-select: none; }
+  .mov-tipo-sel {
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 12px;
+    font-style: italic;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+  .mov-tipo-sel:focus { outline: none; }
+  .mov-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding-top: 2px; }
+  .btn-rm {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 3px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color .15s, background .15s;
+  }
+  .btn-rm:hover { color: var(--warn); background: rgba(197,48,48,0.08); }
+  /* campo inline ao editar nome */
+  .mov-edit-inp {
+    border: 1.5px solid var(--ml-yellow-dark);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    width: 100%;
+    background: #fff;
+  }
+  .mov-edit-inp:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,230,0,0.45); }
+  /* Formulário de adicionar função */
+  .add-func-box {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 12px;
+    border-top: 1.5px dashed var(--ml-yellow-dark);
+    align-items: center;
+  }
+  .add-func-box input[type=text] {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1.5px solid #ccc;
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+  }
+  .add-func-box input[type=text]:focus {
+    outline: none;
+    border-color: var(--ml-yellow-dark);
+    box-shadow: 0 0 0 3px rgba(255,230,0,0.4);
+  }
+  .add-func-box select {
+    border: 1.5px solid #ccc;
+    border-radius: 7px;
+    padding: 6px 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .add-func-box select:focus { outline: none; box-shadow: 0 0 0 2px rgba(255,230,0,0.4); }
+  .add-func-box button {
+    background: var(--ml-yellow);
+    border: 1.5px solid var(--ml-dark);
+    border-radius: 7px;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .add-func-box button:hover { background: var(--ml-yellow-dark); }
+  /* Observações — dentro do grid */
+  .obs-card {
+    width: 100%;
+    background: #fff;
+    border: 2px solid var(--ml-dark);
+    border-top: 6px solid var(--ml-yellow);
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .obs-card-header {
+    background: var(--ml-yellow);
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--ml-dark);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .obs-card-header svg { flex-shrink: 0; }
+  .obs-card textarea {
+    flex: 1;
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ml-dark);
+    resize: vertical;
+    min-height: 80px;
+    background: transparent;
+    line-height: 1.6;
+    overflow-y: auto;
+  }
+  .obs-card textarea::placeholder { color: #bbb; font-style: italic; }
+  .obs-card textarea:focus { outline: none; background: #fffef5; }
+
   @media print {
     .toolbar, .nav-back { display: none; }
     body { background: #fff; padding: 10px; }
     .linha input, .chamada-panel input { border: 1px solid #999; }
+    .add-func-box, .btn-icon { display: none; }
   }
 </style>
 </head>
 <body>
-
 <a href="index.html" class="nav-back">← Organograma</a>
-
 <h1>
   <svg class="icon-box" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L3 6.5V17.5L12 22L21 17.5V6.5L12 2Z" stroke="#2d2d2d" stroke-width="1.6" fill="#FFE600"/>
@@ -312,21 +437,11 @@
   </svg>
   Chamada RK — Total Geral e Distribuição
 </h1>
-<p class="hint">Preencha o <b>Total Geral da Chamada</b> (quantos HCs bateram presença) e distribua entre <b>Operadores</b>, <b>Packing</b> e <b>Shipping</b>. A reconciliação abaixo mostra na hora se a soma fecha com a chamada. Inclui Packing — que o flow (outbound HS) não considerava.</p>
+<p class="hint">Preencha as informações de máquinas e distribuição. A reconciliação mostra na hora se a soma fecha com a chamada.</p>
 
-<!-- TOTAL GERAL DA CHAMADA -->
-<div class="chamada-panel" style="flex-direction:column; align-items:stretch;">
-  <div class="label" style="margin-bottom:12px;">Total Geral da Chamada</div>
-  <div class="chamada-grid">
-    <div class="cham-item"><span>Shipping</span><input type="number" id="chShipping" min="0" value="11" oninput="calc()"></div>
-    <div class="cham-item"><span>Picking</span><input type="number" id="chPicking" min="0" value="18" oninput="calc()"></div>
-    <div class="cham-item"><span>Packing</span><input type="number" id="chPacking" min="0" value="1" oninput="calc()"></div>
-    <div class="cham-item"><span>PS</span><input type="number" id="chPS" min="0" value="1" oninput="calc()"></div>
-  </div>
-  <div class="cham-soma">Soma Geral da Chamada: <b id="chSoma">0</b></div>
-</div>
-
-<!-- MÁQUINAS -->
+<!-- ═══════════════════════════════════════════════════════
+     1. MÁQUINAS EM OPERAÇÃO
+     ═══════════════════════════════════════════════════════ -->
 <div class="chamada-panel" style="background:#fff;color:var(--ml-dark);border:2px solid var(--ml-dark);">
   <div>
     <div class="label" style="color:var(--ml-dark);">Máquinas em Operação</div>
@@ -335,73 +450,165 @@
   <input type="number" id="maquinas" min="0" value="0" oninput="calc()" style="border-color:var(--ml-dark);">
 </div>
 
-<!-- NECESSIDADE POR MÁQUINA -->
+<!-- ═══════════════════════════════════════════════════════
+     2. NECESSIDADE POR MÁQUINA (50/50 triar / bipar)
+     ═══════════════════════════════════════════════════════ -->
 <div class="recon">
-  <div class="card"><div class="k">Indireto / Triar necessário (50%)</div><div class="v" id="mTriarNec">0</div><div class="sub2" id="mTriarStat">—</div></div>
-  <div class="card"><div class="k">Direto / Bipar necessário (50%)</div><div class="v" id="mBiparNec">0</div><div class="sub2" id="mBiparStat">—</div></div>
-  <div class="card"><div class="k">HCs necessários</div><div class="v" id="mTotalNec">0</div><div class="sub2">= nº de máquinas (50/50)</div></div>
-</div>
-
-<!-- RECONCILIAÇÃO -->
-<div class="recon">
-  <div class="card"><div class="k">Total Chamada</div><div class="v" id="rChamada">0</div></div>
-  <div class="card"><div class="k">Total Distribuído</div><div class="v" id="rDistrib">0</div></div>
-  <div class="card"><div class="k">Total Plano</div><input type="number" class="v-input" id="totalPlano" min="0" value="0" oninput="calc()"></div>
-</div>
-<div class="recon">
-  <div class="card status"><div class="k">Status — Falta Direto (bipar)</div><div class="v" id="rFaltaBipar">—</div></div>
-  <div class="card status"><div class="k">Status — Falta Indireto (triar)</div><div class="v" id="rFaltaTriar">—</div></div>
-</div>
-
-<!-- GRUPOS -->
-<div class="grupos">
-
-  <div class="grupo">
-    <div class="grupo-header">Operadores <span class="grupo-total" id="tOper">0</span></div>
-    <div class="grupo-body" id="gOper"></div>
-    <div class="subtot"><span>Diretos: <b id="sOperD">0</b></span><span>Indiretos: <b id="sOperI">0</b></span></div>
+  <div class="card">
+    <div class="k">Indireto / Triar necessário (50%)</div>
+    <div class="v" id="mTriarNec">0</div>
+    <div class="sub2" id="mTriarStat">—</div>
   </div>
-
-  <div class="grupo">
-    <div class="grupo-header">Packing <span class="grupo-total" id="tPack">0</span></div>
-    <div class="grupo-body" id="gPack"></div>
-    <div class="subtot"><span>Diretos: <b id="sPackD">0</b></span><span>Indiretos: <b id="sPackI">0</b></span></div>
+  <div class="card">
+    <div class="k">Direto / Bipar necessário (50%)</div>
+    <div class="v" id="mBiparNec">0</div>
+    <div class="sub2" id="mBiparStat">—</div>
   </div>
+  <div class="card">
+    <div class="k">HCs necessários</div>
+    <div class="v" id="mTotalNec">0</div>
+    <div class="sub2">= nº de máquinas (50/50)</div>
+  </div>
+</div>
 
-  <div class="grupo">
-    <div class="grupo-header">Shipping <span class="grupo-total" id="tShip">0</span></div>
-    <div class="info-maq">Cada máquina = 2 HCs (1 triar + 1 bipar)</div>
-    <div class="grupo-body" id="gShip"></div>
-    <div class="obs">
-      <span>Sobra de operadores está na conta?</span>
-      <select id="sobraOper" onchange="calc()">
-        <option value="sim">Sim</option>
-        <option value="nao">Não</option>
-      </select>
+<!-- ═══════════════════════════════════════════════════════
+     3. RECONCILIAÇÃO — chamada vs. distribuído vs. plano
+     ═══════════════════════════════════════════════════════ -->
+<div class="recon">
+  <div class="card">
+    <div class="k">Total Chamada</div>
+    <div class="v" id="rChamada">0</div>
+  </div>
+  <div class="card">
+    <div class="k">Total Distribuído</div>
+    <div class="v" id="rDistrib">0</div>
+  </div>
+  <div class="card">
+    <div class="k">Total Plano</div>
+    <input type="number" class="v-input" id="totalPlano" min="0" value="0" oninput="calc()">
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     4. STATUS — falta de diretos / indiretos no Shipping
+     ═══════════════════════════════════════════════════════ -->
+<div class="recon">
+  <div class="card status">
+    <div class="k">Status — Falta Direto (bipar)</div>
+    <div class="v" id="rFaltaBipar">—</div>
+  </div>
+  <div class="card status">
+    <div class="k">Status — Falta Indireto (triar)</div>
+    <div class="v" id="rFaltaTriar">—</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     5. TOTAL GERAL DA CHAMADA — quantos HCs bateram ponto
+     ═══════════════════════════════════════════════════════ -->
+<div class="chamada-panel" style="flex-direction:column; align-items:stretch;">
+  <div class="label" style="margin-bottom:12px;">Total Geral da Chamada</div>
+  <div class="chamada-grid">
+    <div class="cham-item">
+      <span>Shipping</span>
+      <input type="number" id="chShipping" min="0" value="11" oninput="calc()">
     </div>
-    <div class="subtot"><span>Diretos: <b id="sShipD">0</b></span><span>Indiretos: <b id="sShipI">0</b></span></div>
+    <div class="cham-item">
+      <span>Picking</span>
+      <input type="number" id="chPicking" min="0" value="18" oninput="calc()">
+    </div>
+    <div class="cham-item">
+      <span>Packing</span>
+      <input type="number" id="chPacking" min="0" value="1" oninput="calc()">
+    </div>
+    <div class="cham-item">
+      <span>PS</span>
+      <input type="number" id="chPS" min="0" value="1" oninput="calc()">
+    </div>
+  </div>
+  <div class="cham-soma">Soma Geral da Chamada: <b id="chSoma">0</b></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     6. GRUPOS DE DISTRIBUIÇÃO
+     ═══════════════════════════════════════════════════════ -->
+<div class="grupos">
+  <!-- Operadores + Packing + PS empilhados na mesma célula do grid -->
+  <div class="pack-ps-stack">
+    <div class="grupo">
+      <div class="grupo-header">Operadores <span class="grupo-total" id="tOper">0</span></div>
+      <div class="grupo-body" id="gOper"></div>
+      <div class="subtot"><span>Diretos: <b id="sOperD">0</b></span><span>Indiretos: <b id="sOperI">0</b></span></div>
+    </div>
+
+    <div class="grupo">
+      <div class="grupo-header">Packing <span class="grupo-total" id="tPack">0</span></div>
+      <div class="grupo-body" id="gPack"></div>
+      <div class="subtot"><span>Diretos: <b id="sPackD">0</b></span><span>Indiretos: <b id="sPackI">0</b></span></div>
+    </div>
+
+    <div class="grupo">
+      <div class="grupo-header">PS <span class="grupo-total" id="tPS">0</span></div>
+      <div class="grupo-body">
+        <div class="linha">
+          <span class="nome">Process Support</span>
+          <input type="number" id="psDist" min="0" value="1" oninput="calc()">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Shipping + Sinergias empilhados na mesma célula do grid -->
+  <div class="ship-sin-stack">
+    <div class="grupo">
+      <div class="grupo-header">Shipping <span class="grupo-total" id="tShip">0</span></div>
+      <div class="info-maq">Cada máquina = 2 HCs (1 triar + 1 bipar)</div>
+      <div class="grupo-body" id="gShip"></div>
+      <div class="obs">
+        <span>Sobra de operadores está na conta?</span>
+        <select id="sobraOper" onchange="calc()">
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+      <div class="subtot"><span>Diretos: <b id="sShipD">0</b></span><span>Indiretos: <b id="sShipI">0</b></span></div>
+    </div>
+
+    <div class="grupo">
+      <div class="grupo-header">Sinergias <input type="time" id="sinHora" value="01:00" title="Editar horário da sinergia"> <span class="grupo-total" id="tSin">0</span></div>
+      <div class="grupo-body" id="gSin"></div>
+      <div class="subtot"><span>Diretos: <b id="sSinD">0</b></span><span>Indiretos: <b id="sSinI">0</b></span></div>
+    </div>
   </div>
 
+  <!-- MOV. FORA PLANO — mais largo (ocupa 2.2fr) -->
   <div class="grupo">
     <div class="grupo-header">Mov. Fora Plano <span class="grupo-total" id="tMov">0</span></div>
     <div class="grupo-body" id="gMov"></div>
+    <!-- Formulário de adicionar nova função -->
+    <div class="add-func-box">
+      <input type="text" id="newFuncNome" placeholder="Nova função…" maxlength="40"
+             onkeydown="if(event.key==='Enter') addMovFunc()">
+      <select id="newFuncTipo">
+        <option value="I">Indireto</option>
+        <option value="D">Direto</option>
+      </select>
+      <button onclick="addMovFunc()">＋ Add</button>
+    </div>
     <div class="subtot"><span>Diretos: <b id="sMovD">0</b></span><span>Indiretos: <b id="sMovI">0</b></span></div>
   </div>
 
-  <div class="grupo">
-    <div class="grupo-header">Sinergias <input type="time" id="sinHora" value="01:00" title="Editar horário da sinergia"> <span class="grupo-total" id="tSin">0</span></div>
-    <div class="grupo-body" id="gSin"></div>
-    <div class="subtot"><span>Diretos: <b id="sSinD">0</b></span><span>Indiretos: <b id="sSinI">0</b></span></div>
+  <!-- OBSERVAÇÕES — ao lado de Mov. Fora Plano, preenche o resto do grid -->
+  <div class="obs-card">
+    <div class="obs-card-header">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Observações
+    </div>
+    <textarea id="psObs" placeholder="Escreva aqui observações importantes…"></textarea>
   </div>
-
 </div>
-
-<!-- PS (janela menor, abaixo das sinergias) -->
-<div class="ps-box">
-  <span>PS (Process Support)</span>
-  <input type="number" id="psDist" min="0" value="1" oninput="calc()">
-</div>
-
 <div class="toolbar">
   <button class="primary" onclick="window.print()">🖨️ Imprimir / PDF</button>
   <button onclick="salvar()">💾 Salvar (JSON)</button>
@@ -409,7 +616,6 @@
   <button onclick="zerar()">♻️ Zerar</button>
   <input type="file" id="file" accept=".json" style="display:none" onchange="carregar(event)">
 </div>
-
 <script>
   // Estrutura: cada grupo tem linhas {id, nome, tipo:'D'|'I', valor}
   const modelo = {
@@ -436,140 +642,242 @@
   };
   let dados = JSON.parse(JSON.stringify(modelo));
 
+  /* ─── Render ─────────────────────────────────────────── */
   function render() {
     for (const g of ['Oper','Pack','Ship','Mov','Sin']) {
-      const cont = document.getElementById('g'+g);
+      const cont = document.getElementById('g' + g);
       cont.innerHTML = '';
       dados[g].forEach(l => {
         const div = document.createElement('div');
         div.className = 'linha';
-        div.innerHTML = `<span class="nome">${l.nome} <small style="color:#999">(${l.tipo==='D'?'direto':'indireto'})</small></span>
-          <input type="number" min="0" value="${l.valor}" data-g="${g}" data-id="${l.id}" oninput="upd(this)">`;
+        div.id = 'linha_' + l.id;
+
+        if (g === 'Mov') {
+          // Layout idêntico ao screenshot: nome bold + tipo selecionável abaixo
+          div.classList.add('mov-linha');
+          div.innerHTML = `
+            <div class="mov-left">
+              <span class="mov-nome" title="Duplo clique para renomear">${l.nome}</span>
+              <div class="mov-tipo-wrap">
+                <span class="mov-paren">(</span>
+                <select class="mov-tipo-sel" onchange="updTipoMov(this,'${l.id}')">
+                  <option value="D" ${l.tipo==='D'?'selected':''}>direto</option>
+                  <option value="I" ${l.tipo==='I'?'selected':''}>indireto</option>
+                </select>
+                <span class="mov-paren">)</span>
+              </div>
+            </div>
+            <div class="mov-right">
+              <input type="number" min="0" value="${l.valor}" data-g="${g}" data-id="${l.id}" oninput="upd(this)">
+              <button class="btn-rm" onclick="removeMovFunc('${l.id}')" title="Remover">✕</button>
+            </div>
+          `;
+          // duplo-clique no nome abre edição
+          div.querySelector('.mov-nome').addEventListener('dblclick', () => editMovFunc(l.id));
+        } else {
+          div.innerHTML = `<span class="nome">${l.nome} <small style="color:#999">(${l.tipo==='D'?'direto':'indireto'})</small></span>
+            <input type="number" min="0" value="${l.valor}" data-g="${g}" data-id="${l.id}" oninput="upd(this)">`;
+        }
         cont.appendChild(div);
       });
     }
     calc();
   }
 
-  function upd(inp){
-    const g = inp.dataset.g, id = inp.dataset.id;
-    const l = dados[g].find(x=>x.id===id);
-    l.valor = parseInt(inp.value||'0',10);
+  /* ─── Mov: editar nome (duplo clique) ───────────────── */
+  function editMovFunc(id) {
+    const l = dados['Mov'].find(x => x.id === id);
+    if (!l) return;
+    const left    = document.querySelector('#linha_' + id + ' .mov-left');
+    const nomeEl  = left.querySelector('.mov-nome');
+    const nomeAtual = l.nome;
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'mov-edit-inp';
+    inp.value = nomeAtual;
+    inp.maxLength = 40;
+
+    const save = () => {
+      const novoNome = inp.value.trim();
+      if (novoNome) l.nome = novoNome;
+      render();
+    };
+
+    inp.addEventListener('blur', save);
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  { inp.removeEventListener('blur', save); save(); }
+      if (e.key === 'Escape') { inp.removeEventListener('blur', save); render(); }
+    });
+
+    nomeEl.replaceWith(inp);
+    inp.focus();
+    inp.select();
+  }
+
+  /* ─── Mov: remover função ────────────────────────────── */
+  function removeMovFunc(id) {
+    const idx = dados['Mov'].findIndex(x => x.id === id);
+    if (idx !== -1) { dados['Mov'].splice(idx, 1); render(); }
+  }
+
+  /* ─── Mov: adicionar função ──────────────────────────── */
+  function addMovFunc() {
+    const nomeInp = document.getElementById('newFuncNome');
+    const nome = nomeInp.value.trim();
+    if (!nome) { nomeInp.focus(); return; }
+    const tipo = document.getElementById('newFuncTipo').value;
+    const id   = 'mv_' + Date.now();
+    dados['Mov'].push({ id, nome, tipo, valor: 0 });
+    nomeInp.value = '';
+    nomeInp.focus();
+    render();
+  }
+
+  /* ─── Mov: trocar tipo (direto/indireto) ─────────────── */
+  function updTipoMov(sel, id) {
+    const l = dados['Mov'].find(x => x.id === id);
+    if (l) { l.tipo = sel.value; calc(); }
+  }
+
+  /* ─── Atualizar valor de qualquer linha ──────────────── */
+  function upd(inp) {
+    const g  = inp.dataset.g;
+    const id = inp.dataset.id;
+    const l  = dados[g].find(x => x.id === id);
+    if (l) l.valor = parseInt(inp.value || '0', 10);
     calc();
   }
 
-  function grupoSoma(g){
-    let d=0,i=0;
-    dados[g].forEach(l => { if(l.tipo==='D') d+=l.valor; else i+=l.valor; });
-    return {d,i,t:d+i};
+  /* ─── Soma por grupo ─────────────────────────────────── */
+  function grupoSoma(g) {
+    let d = 0, i = 0;
+    dados[g].forEach(l => { if (l.tipo === 'D') d += l.valor; else i += l.valor; });
+    return { d, i, t: d + i };
   }
 
-  function calc(){
-    const gmap = {Oper:['tOper','sOperD','sOperI'], Pack:['tPack','sPackD','sPackI'], Ship:['tShip','sShipD','sShipI'], Mov:['tMov','sMovD','sMovI'], Sin:['tSin','sSinD','sSinI']};
+  /* ─── Cálculos e atualização do painel ───────────────── */
+  function calc() {
+    const gmap = {
+      Oper: ['tOper','sOperD','sOperI'],
+      Pack: ['tPack','sPackD','sPackI'],
+      Ship: ['tShip','sShipD','sShipI'],
+      Mov:  ['tMov', 'sMovD', 'sMovI'],
+      Sin:  ['tSin', 'sSinD', 'sSinI'],
+    };
     let distrib = 0;
-    for (const g of ['Oper','Pack','Ship','Mov','Sin']){
-      const {d,i,t} = grupoSoma(g);
-      const [tot,sd,si] = gmap[g];
+    for (const g of ['Oper','Pack','Ship','Mov','Sin']) {
+      const { d, i, t } = grupoSoma(g);
+      const [tot, sd, si] = gmap[g];
       document.getElementById(tot).textContent = t;
-      document.getElementById(sd).textContent = d;
-      document.getElementById(si).textContent = i;
+      document.getElementById(sd).textContent  = d;
+      document.getElementById(si).textContent  = i;
       distrib += t;
     }
-    // PS (janela abaixo das sinergias) também entra no distribuído
-    distrib += parseInt(document.getElementById('psDist').value||'0',10);
-    // Necessidade: total = nº de máquinas, dividido 50/50 (metade direto/bipar, metade indireto/triar).
-    // Ex.: 14 máquinas → 7 bipar + 7 triar = 14 HCs.
-    // Os triar/bipar alocados vêm dos colaboradores do SHIPPING; o que faltar é coberto pela Sinergia.
-    const maq = parseInt(document.getElementById('maquinas').value||'0',10);
-    const necTriar = Math.floor(maq/2);
+    const psVal = parseInt(document.getElementById('psDist').value || '0', 10);
+    document.getElementById('tPS').textContent = psVal;
+    distrib += psVal;
+
+    const maq      = parseInt(document.getElementById('maquinas').value || '0', 10);
+    const necTriar = Math.floor(maq / 2);
     const necBipar = maq - necTriar;
     let alocTriar = 0, alocBipar = 0;
-    dados['Ship'].forEach(l => { if(l.funcao==='triar') alocTriar+=l.valor; else if(l.funcao==='bipar') alocBipar+=l.valor; });
+    dados['Ship'].forEach(l => {
+      if (l.funcao === 'triar') alocTriar += l.valor;
+      else if (l.funcao === 'bipar') alocBipar += l.valor;
+    });
+
     const setMaq = (idNec, idStat, nec, aloc) => {
       document.getElementById(idNec).textContent = nec;
       const s = document.getElementById(idStat);
       const d = aloc - nec;
-      if (d === 0){ s.textContent = 'shipping '+aloc+' ✓'; s.style.color = 'var(--ok)'; }
-      else if (d > 0){ s.textContent = 'shipping '+aloc+' (+'+d+')'; s.style.color = 'var(--ok)'; }
-      else { s.textContent = 'shipping '+aloc+' (faltam '+Math.abs(d)+' → sinergia)'; s.style.color = 'var(--warn)'; }
+      if (d === 0)     { s.textContent = 'shipping ' + aloc + ' ✓';                        s.style.color = 'var(--ok)'; }
+      else if (d > 0)  { s.textContent = 'shipping ' + aloc + ' (+' + d + ')';             s.style.color = 'var(--ok)'; }
+      else             { s.textContent = 'shipping ' + aloc + ' (faltam ' + Math.abs(d) + ' → sinergia)'; s.style.color = 'var(--warn)'; }
     };
-    setMaq('mTriarNec','mTriarStat', necTriar, alocTriar);
-    setMaq('mBiparNec','mBiparStat', necBipar, alocBipar);
+    setMaq('mTriarNec', 'mTriarStat', necTriar, alocTriar);
+    setMaq('mBiparNec', 'mBiparStat', necBipar, alocBipar);
     document.getElementById('mTotalNec').textContent = maq;
 
     const chSoma = ['chShipping','chPicking','chPacking','chPS']
-      .reduce((s,id)=> s + parseInt(document.getElementById(id).value||'0',10), 0);
-    document.getElementById('chSoma').textContent = chSoma;
+      .reduce((s, id) => s + parseInt(document.getElementById(id).value || '0', 10), 0);
+    document.getElementById('chSoma').textContent  = chSoma;
     document.getElementById('rChamada').textContent = chSoma;
     document.getElementById('rDistrib').textContent = distrib;
 
-    // Status = falta do 50/50 do Shipping (necessidade da máquina − alocado no Shipping).
-    // O que falta é coberto pela Sinergia (não entra aqui).
     const setFalta = (id, nec, aloc) => {
       const el = document.getElementById(id);
       const falta = nec - aloc;
-      if (falta > 0){ el.textContent = 'faltam ' + falta; el.style.color = 'var(--warn)'; }
-      else if (falta === 0){ el.textContent = '✓ completo'; el.style.color = 'var(--ok)'; }
-      else { el.textContent = Math.abs(falta) + ' a mais'; el.style.color = 'var(--ok)'; }
+      if (falta > 0)      { el.textContent = 'faltam ' + falta;        el.style.color = 'var(--warn)'; }
+      else if (falta === 0){ el.textContent = '✓ completo';             el.style.color = 'var(--ok)'; }
+      else                 { el.textContent = Math.abs(falta) + ' a mais'; el.style.color = 'var(--ok)'; }
     };
     setFalta('rFaltaBipar', necBipar, alocBipar);
     setFalta('rFaltaTriar', necTriar, alocTriar);
   }
 
-  function salvar(){
+  /* ─── Salvar JSON ────────────────────────────────────── */
+  function salvar() {
     const out = {
       chamada: {
         shipping: document.getElementById('chShipping').value,
-        picking: document.getElementById('chPicking').value,
-        packing: document.getElementById('chPacking').value,
-        ps: document.getElementById('chPS').value
+        picking:  document.getElementById('chPicking').value,
+        packing:  document.getElementById('chPacking').value,
+        ps:       document.getElementById('chPS').value,
       },
       totalPlano: document.getElementById('totalPlano').value,
-      maquinas: document.getElementById('maquinas').value,
-      sinHora: document.getElementById('sinHora').value,
-      psDist: document.getElementById('psDist').value,
-      sobraOper: document.getElementById('sobraOper').value,
-      dados
+      maquinas:   document.getElementById('maquinas').value,
+      sinHora:    document.getElementById('sinHora').value,
+      psDist:     document.getElementById('psDist').value,
+      sobraOper:  document.getElementById('sobraOper').value,
+      psObs:      document.getElementById('psObs').value,
+      dados,
     };
-    const blob = new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'chamada_rk.json';
     a.click();
   }
-  function carregar(e){
-    const f = e.target.files[0]; if(!f) return;
+
+  /* ─── Carregar JSON ──────────────────────────────────── */
+  function carregar(e) {
+    const f = e.target.files[0];
+    if (!f) return;
     const r = new FileReader();
     r.onload = ev => {
-      try { const j = JSON.parse(ev.target.result);
-        if(j.chamada){
-          if(j.chamada.shipping!=null) document.getElementById('chShipping').value = j.chamada.shipping;
-          if(j.chamada.picking!=null) document.getElementById('chPicking').value = j.chamada.picking;
-          if(j.chamada.packing!=null) document.getElementById('chPacking').value = j.chamada.packing;
-          if(j.chamada.ps!=null) document.getElementById('chPS').value = j.chamada.ps;
+      try {
+        const j = JSON.parse(ev.target.result);
+        if (j.chamada) {
+          if (j.chamada.shipping != null) document.getElementById('chShipping').value = j.chamada.shipping;
+          if (j.chamada.picking  != null) document.getElementById('chPicking').value  = j.chamada.picking;
+          if (j.chamada.packing  != null) document.getElementById('chPacking').value  = j.chamada.packing;
+          if (j.chamada.ps       != null) document.getElementById('chPS').value        = j.chamada.ps;
         }
-        if(j.totalPlano!=null) document.getElementById('totalPlano').value = j.totalPlano;
-        if(j.maquinas!=null) document.getElementById('maquinas').value = j.maquinas;
-        if(j.psDist!=null) document.getElementById('psDist').value = j.psDist;
-        if(j.sobraOper) document.getElementById('sobraOper').value = j.sobraOper;
-        if(j.sinHora) document.getElementById('sinHora').value = j.sinHora;
-        if(j.dados) dados = j.dados;
+        if (j.totalPlano != null) document.getElementById('totalPlano').value = j.totalPlano;
+        if (j.maquinas   != null) document.getElementById('maquinas').value   = j.maquinas;
+        if (j.psDist     != null) document.getElementById('psDist').value     = j.psDist;
+        if (j.sobraOper)          document.getElementById('sobraOper').value  = j.sobraOper;
+        if (j.sinHora)            document.getElementById('sinHora').value    = j.sinHora;
+        if (j.psObs != null)      document.getElementById('psObs').value      = j.psObs;
+        if (j.dados)              dados = j.dados;
         render();
-      } catch(err){ alert('Arquivo inválido'); }
+      } catch (err) { alert('Arquivo inválido'); }
     };
     r.readAsText(f);
   }
-  function zerar(){
-    ['chShipping','chPicking','chPacking','chPS'].forEach(id=>document.getElementById(id).value = 0);
-    document.getElementById('psDist').value = 0;
-    document.getElementById('sobraOper').value = 'sim';
+
+  /* ─── Zerar ──────────────────────────────────────────── */
+  function zerar() {
+    ['chShipping','chPicking','chPacking','chPS'].forEach(id => document.getElementById(id).value = 0);
+    document.getElementById('psDist').value     = 0;
+    document.getElementById('sobraOper').value  = 'sim';
     document.getElementById('totalPlano').value = 0;
-    for (const g of ['Oper','Pack','Ship','Mov','Sin']) dados[g].forEach(l=>l.valor=0);
+    dados = JSON.parse(JSON.stringify(modelo));
     render();
   }
 
   render();
 </script>
-
 </body>
 </html>
