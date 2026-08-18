@@ -877,7 +877,192 @@
     render();
   }
 
-  render();
+
+  // ═══════════════════════════════════════════════════════════════════
+  // AUTO-SAVE — JSONBin.io
+  // Dados compartilhados em tempo real com todos que acessarem o link.
+  //
+  // Na PRIMEIRA abertura, o script cria um bin automaticamente e exibe
+  // o BIN_ID. Cole esse ID abaixo e faça commit no GitHub para ativar
+  // o compartilhamento para todos.
+  // ═══════════════════════════════════════════════════════════════════
+
+  const CLOUD_KEY = '\$2a\$10\$DYCVOceJLnCAX4E7pi/fAO7KtY/pYcdjJR3v1mJP0nltVIcxtC/K.';
+  let   CLOUD_BIN = 'SETUP'; // ← cole aqui o BIN_ID após o primeiro setup
+
+  // ── Coleta todo o estado atual da página ──────────────
+  function collectState() {
+    return {
+      chamada: {
+        shipping: document.getElementById('chShipping').value,
+        picking:  document.getElementById('chPicking').value,
+        packing:  document.getElementById('chPacking').value,
+        ps:       document.getElementById('chPS').value,
+      },
+      totalPlano: document.getElementById('totalPlano').value,
+      maquinas:   document.getElementById('maquinas').value,
+      sinHora:    document.getElementById('sinHora').value,
+      psDist:     document.getElementById('psDist').value,
+      sobraOper:  document.getElementById('sobraOper').value,
+      psObs:      document.getElementById('psObs').value,
+      dados,
+      _ts: new Date().toISOString(),
+    };
+  }
+
+  // ── Aplica estado salvo aos campos da página ──────────
+  function applyState(j) {
+    if (!j || j._init) return;
+    if (j.chamada) {
+      if (j.chamada.shipping != null) document.getElementById('chShipping').value = j.chamada.shipping;
+      if (j.chamada.picking  != null) document.getElementById('chPicking').value  = j.chamada.picking;
+      if (j.chamada.packing  != null) document.getElementById('chPacking').value  = j.chamada.packing;
+      if (j.chamada.ps       != null) document.getElementById('chPS').value        = j.chamada.ps;
+    }
+    if (j.totalPlano != null) document.getElementById('totalPlano').value = j.totalPlano;
+    if (j.maquinas   != null) document.getElementById('maquinas').value   = j.maquinas;
+    if (j.psDist     != null) document.getElementById('psDist').value     = j.psDist;
+    if (j.sobraOper)          document.getElementById('sobraOper').value  = j.sobraOper;
+    if (j.sinHora)            document.getElementById('sinHora').value    = j.sinHora;
+    if (j.psObs != null)      document.getElementById('psObs').value      = j.psObs;
+    if (j.dados)              dados = j.dados;
+  }
+
+  // ── Toast de feedback ─────────────────────────────────
+  function showToast(msg, ok = true) {
+    let t = document.getElementById('_cloudToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = '_cloudToast';
+      t.style.cssText = [
+        'position:fixed', 'bottom:22px', 'right:22px',
+        'padding:10px 18px', 'border-radius:10px',
+        'font-size:13px', 'font-weight:700', 'font-family:inherit',
+        'z-index:9999', 'transition:opacity .5s',
+        'box-shadow:0 4px 14px rgba(0,0,0,.22)',
+        'pointer-events:none',
+      ].join(';');
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.background = ok ? '#00A650' : '#c53030';
+    t.style.color = '#fff';
+    t.style.opacity = '1';
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => t.style.opacity = '0', 2800);
+  }
+
+  // ── Salvar na nuvem (debounce 1.5 s) ──────────────────
+  let _saveTimer;
+  function triggerSave() {
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(saveToCloud, 1500);
+  }
+
+  async function saveToCloud() {
+    if (CLOUD_BIN === 'SETUP') return;
+    try {
+      const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD_BIN}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': CLOUD_KEY,
+        },
+        body: JSON.stringify(collectState()),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      showToast('☁ Salvo na nuvem');
+    } catch (e) {
+      showToast('✗ Erro ao salvar: ' + e.message, false);
+    }
+  }
+
+  // ── Carregar da nuvem ao abrir ────────────────────────
+  async function loadFromCloud() {
+    if (CLOUD_BIN === 'SETUP') {
+      render();
+      await setupBin();
+      return;
+    }
+    document.body.style.opacity = '0.6';
+    try {
+      const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD_BIN}/latest`, {
+        headers: { 'X-Master-Key': CLOUD_KEY },
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      applyState(j.record);
+      showToast('☁ Dados carregados');
+    } catch (e) {
+      showToast('✗ Erro ao carregar: ' + e.message, false);
+    } finally {
+      document.body.style.opacity = '1';
+      render();
+    }
+  }
+
+  // ── Setup na primeira abertura ────────────────────────
+  async function setupBin() {
+    try {
+      const r = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'X-Master-Key':  CLOUD_KEY,
+          'X-Bin-Name':    'chamada-rk',
+          'X-Bin-Private': 'false',
+        },
+        body: JSON.stringify({ _init: true }),
+      });
+      const j = await r.json();
+      const id = j.metadata?.id;
+      if (!id) throw new Error('ID não retornado pela API');
+      showSetupOverlay(id);
+    } catch (e) {
+      showToast('✗ Setup falhou: ' + e.message, false);
+    }
+  }
+
+  function showSetupOverlay(binId) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:99999;';
+    ov.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:36px 32px;max-width:540px;width:92%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,.4);">
+        <div style="font-size:42px;margin-bottom:10px;">☁️</div>
+        <h2 style="margin:0 0 8px;font-size:21px;color:#2d2d2d;">Bin criado com sucesso!</h2>
+        <p style="color:#555;font-size:13px;line-height:1.6;margin:0 0 20px;">
+          Para que <b>todos os usuários vejam os mesmos dados</b>, copie o BIN ID abaixo,
+          cole no arquivo <code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">chamada.html</code>
+          e faça commit no GitHub.
+        </p>
+
+        <div id="_binIdBox" onclick="navigator.clipboard.writeText('${binId}').then(()=>{ this.style.background='#e6ffe6'; document.getElementById('_copyMsg').textContent='Copiado! ✓'; })"
+          style="background:#fffbdb;border:2px dashed #FFD400;border-radius:10px;padding:16px;font-size:22px;font-weight:800;letter-spacing:3px;cursor:copy;margin-bottom:8px;transition:background .3s;">
+          ${binId}
+        </div>
+        <p id="_copyMsg" style="color:#00A650;font-size:12px;font-weight:700;margin:0 0 16px;min-height:16px;"></p>
+
+        <p style="color:#777;font-size:12px;background:#f8f8f8;border-radius:8px;padding:10px 14px;margin:0 0 22px;text-align:left;line-height:1.7;">
+          No <code>chamada.html</code>, encontre a linha:<br>
+          <code>let&nbsp;&nbsp;CLOUD_BIN = <b>'SETUP'</b>;</code><br>
+          e substitua por:<br>
+          <code>let&nbsp;&nbsp;CLOUD_BIN = <b>'${binId}'</b>;</code>
+        </p>
+
+        <button onclick="this.closest('div').parentElement.remove()"
+          style="background:#FFE600;border:2px solid #2d2d2d;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:800;cursor:pointer;">
+          Entendi — vou atualizar o arquivo
+        </button>
+      </div>
+    `;
+    document.body.appendChild(ov);
+  }
+
+  // ── Inicialização ─────────────────────────────────────
+  document.addEventListener('input',  triggerSave);
+  document.addEventListener('change', triggerSave);
+  loadFromCloud(); // carrega da nuvem e chama render() internamente
+
 </script>
 </body>
 </html>
